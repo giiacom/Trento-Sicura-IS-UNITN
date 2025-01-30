@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-size: 16px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input[type="text"], input[type="file"], textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        textarea {
+            height: 150px;
+        }
+
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .cancel-btn:hover, .submit-btn:hover {
+            opacity: 0.8;
+        }
+
+        .form-group input[type="text"] {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Submit a Report</h1>
+        <form action="/submit-report" method="POST" enctype="multipart/form-data">
+            <!-- Title Field -->
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" id="title" name="title" required placeholder="Enter report title">
+            </div>
+
+            <!-- Description Field -->
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" required placeholder="Describe the report"></textarea>
+            </div>
+
+            <!-- Location Field (Optional) -->
+            <div class="form-group">
+                <label for="location">Location (Optional)</label>
+                <input type="text" id="location" name="location" placeholder="Enter location (e.g., city, coordinates)">
+            </div>
+
+            <!-- Photo Upload Field (Optional) -->
+            <div class="form-group">
+                <label for="photo">Upload Photo (Optional)</label>
+                <input type="file" id="photo" name="photo" accept="image/*">
+            </div>
+
+            <!-- Buttons -->
+            <div class="form-group">
+                <button type="submit" class="submit-btn">Submit</button>
+                <button type="button" class="cancel-btn" onclick="window.location.href='/';">Cancel</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.querySelector('form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            console.log('Title:', title);
+            console.log('Description:', description);
+            const location = document.getElementById('location').value;
+            const photo = document.getElementById('photo').files[0];
+
+            const token = localStorage.getItem('jwt_token'); // Assuming the token is saved as 'jwt_token'
+
+            if (!token) {
+                alert('Please log in to submit a report.');
+                window.location.href = 'login.html'; // Redirect to login if no token
+                return;
+            }
+
+            // Validate title and description
+            if (!title || !description) {
+                alert("Title and description are required.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('description', description);
+            formData.append('location', location);  // Optional, can be empty
+            if (photo) {
+                formData.append('photo', photo); // Optional photo
+            }
+
+            for (let [key, value] of formData.entries()) {
+                console.log(key, value);
+            }
+
+            fetch('http://localhost:4000/api/create', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`, // Send the token here
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => {
+                        throw new Error(err.error || 'An unknown error occurred');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);  // Show the error from the server
+                   return;
+               }
+
+                alert('Report submitted successfully');
+               window.location.href = '/';
+            } )
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred: ' + error.message);
+            });
+        });
+    </script>
+
+</body>
+</html>
