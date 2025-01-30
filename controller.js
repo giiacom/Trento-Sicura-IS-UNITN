@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('./userModule'); 
 const bcrypt = require('bcrypt');
 
+
 exports.register = async (req, res) => {
     try {
         const { username, email, password, phone } = req.body;
@@ -46,36 +47,45 @@ exports.register = async (req, res) => {
         res.status(500).json({ error: 'Registration not succesful, try again' });
     }
 };
-
 exports.login = async (req, res) => {
     const { email, username, password } = req.body;
 
     if (!email && !username) {
         return res.status(400).json({ error: 'Email or username are required' });
     }
-    if(!password){
+    if (!password) {
         return res.status(400).json({ error: 'Password is required' });
     }
+
     try {
-        // Check if the user exists
-        const user = await User.findOne({ email});
-        if (!user) {
+        // Find user by email or username
+        let user;
+        if (email) {
+            user = await User.findOne({ email });
+        } else if (username) {
             user = await User.findOne({ username });
-            if(!user){
-                return res.status(404).json({ error: 'User not found' });
-            }
         }
-        
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Compare passwords
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ error: 'Invalid credentials' });
         }
 
+        // Make sure JWT_SECRET is available
+        if (!process.env.JWT_SECRET) {
+            return res.status(500).json({ error: 'Server error: JWT secret is missing' });
+        }
+
         // Create a JWT token
         const token = jwt.sign(
-            { userId: user._id },            // Payload: User's ID
-            process.env.JWT_SECRET,          // Secret key from environment variable
-            { expiresIn: '1h' }             // Token expiration time (1 hour)
+            { userId: user._id },              // Payload: User's ID
+            process.env.JWT_SECRET,            // Secret key from environment variable
+            { expiresIn: '1h' }               // Token expiration time (1 hour)
         );
 
         // Send back the token in the response

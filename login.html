@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login</h1>
+
+    <form id="loginForm">
+        <!-- Field for username or email -->
+        <label for="usernameOrEmail">Username or Email</label>
+        <input type="text" id="usernameOrEmail" name="usernameOrEmail" required>
+        <br>
+
+        <!-- Field for password -->
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+
+        <!-- Button for login -->
+        <button type="submit">Login</button>
+        <!-- Button for register -->
+        <button type="button" onclick="window.location.href='registra.html'">Register</button>
+    </form>
+
+    <!-- Script for handling form submission -->
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            
+            const usernameOrEmail = document.getElementById('usernameOrEmail').value;
+            const password = document.getElementById('password').value;
+        
+            // Decide whether to send username or email
+            const loginData = usernameOrEmail.includes('@') ? { email: usernameOrEmail } : { username: usernameOrEmail };
+        
+            // Send login request
+            try {
+                const response = await fetch('http://localhost:4000/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        ...loginData,  // Send either email or username
+                        password: password,
+                    }),
+                });
+        
+                const result = await response.json();
+                console.log(result);
+            } catch (error) {
+                console.error('Error logging in:', error);
+            }
+        });
+    </script>
+</body>
+</html>
