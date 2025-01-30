@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrazione</title>
+</head>
+<body>
+    <h1>Registrazione</h1>
+    <form onsubmit="registerUser(event)">
+        <!-- Campo per l'username -->
+        <label for="username">Username/Email:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        
+        <!-- Campo per la password -->
+        <label for="password">Inserisci Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        
+        <!-- Campo per confermare la password -->
+        <label for="confirmPassword">Conferma Password:</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required>
+        <br>
+        
+        <!-- Bottone di registrazione -->
+        <button type="submit">Registra</button>
+    </form>
+
+    <!-- Link per chi ha già un account -->
+    <p><a href="Login.html">Hai già un account?</a></p>
+
+    <!-- Script JS -->
+    <script src="controlloPassword.js"></script>
+    <script src="visibilitaPassword.js"></script>
+</body>
+</html>
