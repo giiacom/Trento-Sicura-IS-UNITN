@@ -4,120 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profilo Utente</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .report-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .report-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .report-item:last-child {
-            border-bottom: none;
-        }
-
-        .report-title {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .report-description {
-            font-size: 14px;
-            color: #555;
-        }
-
-        .delete-btn {
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-        }
-
-        .delete-btn:hover {
-            background-color: #c0392b;
-        }
-
-        .btn-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .back-btn, .logout-btn {
-            padding: 10px 15px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin: 5px;
-        }
-
-        .back-btn {
-            background-color: #3498db;
-            color: white;
-        }
-
-        .logout-btn {
-            background-color: #e74c3c;
-            color: white;
-        }
-
-        .back-btn:hover, .logout-btn:hover {
-            opacity: 0.8;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-sky-400 p-10 flex h-screen justify-center items-center">
 
-    <h1>Profilo Utente</h1>
-    
-    <div class="container">
-        <h2>Le tue segnalazioni</h2>
-        <ul class="report-list" id="reportList">
-            <li>Caricamento...</li>
-        </ul>
+    <div class="flex w-full max-w-6xl space-x-6">
+        <!-- Metà sinistra: Dati utente -->
+        <div class="w-1/2 bg-white p-6 rounded-lg shadow-md">
+            <h1 class="text-3xl font-bold mb-4 text-gray-800 text-center">Profilo Utente</h1>
+            <div class="border-t border-gray-300 pt-4 space-y-2">
+                <p class="text-lg"><strong>Nome:</strong> Mario Rossi</p>
+                <p class="text-lg"><strong>Email:</strong> mario.rossi@example.com</p>
+                <p class="text-lg"><strong>Data di registrazione:</strong> 01/01/2023</p>
+                <p class="text-lg"><strong>Ruolo:</strong> Utente</p>
+                <p class="text-blue-600 hover:underline"> <a href="modificaProfilo.html">Modifica profilo</a></p>
+            </div>
+           
+        </div>
 
-        <div class="btn-container">
-            <button class="back-btn" onclick="window.location.href='main.html'">Torna alla Dashboard</button>
-            <button class="logout-btn" onclick="logout()">Logout</button>
+        <!-- Metà destra: Lista delle segnalazioni -->
+        <div class="w-1/2 bg-white p-6 rounded-lg shadow-md flex flex-col">
+            
+            <!-- Sezione Bottoni -->
+            <div class="flex justify-end space-x-4 mb-6">
+                <button class="px-6 py-3 text-lg text-white bg-yellow-500 rounded-lg hover:bg-yellow-600"
+                    onclick="window.location.href='main.html'">
+                    Home
+                </button>
+                <button class="px-6 py-3 text-lg text-white bg-green-500 rounded-lg hover:bg-green-600"
+                    onclick="window.location.href='report.html'">
+                    Crea Segnalazione
+                </button>
+                <button class="px-6 py-3 text-lg text-white bg-red-500 rounded-lg hover:bg-red-600"
+                    onclick="logout()">
+                    Logout
+                </button>
+            </div>
+
+            <!-- Lista delle Segnalazioni -->
+            <h2 class="text-xl font-bold mb-4 text-gray-800">Le tue segnalazioni</h2>
+            <ul id="segnalazioni-list" class="bg-gray-100 p-4 rounded-lg shadow-md max-h-80 overflow-auto">
+                <li class="text-gray-600">Caricamento...</li>
+            </ul>
         </div>
     </div>
 
+    
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
             const token = localStorage.getItem('jwt_token');
@@ -137,7 +69,7 @@
                     });
 
                     const data = await response.json();
-                    const reportList = document.getElementById('reportList');
+                    const reportList = document.getElementById('segnalazioni-list');
                     reportList.innerHTML = ''; // Clear previous content
 
                     if (data.error) {
@@ -146,20 +78,28 @@
                     }
 
                     if (data.reports.length === 0) {
-                        reportList.innerHTML = '<li>Nessuna segnalazione trovata.</li>';
+                        reportList.innerHTML = '<li class="text-gray-600">Nessuna segnalazione trovata.</li>';
                         return;
                     }
 
                     data.reports.forEach(report => {
                         const li = document.createElement('li');
-                        li.classList.add('report-item');
+                        li.classList.add('flex', 'justify-between', 'items-center', 'p-4', 'border-b', 'border-gray-200');
 
                         li.innerHTML = `
-                            <div>
-                                <div class="report-title">${report.title}</div>
-                                <div class="report-description">${report.description}</div>
+                            <div class="flex-1">
+                                <div class="text-lg font-semibold">${report.title}</div>
+                                <div class="text-gray-600">${report.description}</div>
                             </div>
-                            <button class="delete-btn" onclick="deleteReport('${report._id}')">Elimina</button>
+                            <button class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors ml-2 mr-2" 
+                                    onclick="/('${report._id}')">
+                                Modifica
+                            </button>
+                            <button class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors" 
+                                    onclick="deleteReport('${report._id}')">
+                                Elimina
+                            </button>
+                            
                         `;
 
                         reportList.appendChild(li);

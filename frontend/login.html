@@ -3,109 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="../src/output.css" rel="stylesheet">
     <title>Login</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #3498db;
-        }
-
-        .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-        }
-
-        h1 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        label {
-            display: block;
-            text-align: left;
-            font-weight: bold;
-            margin-top: 10px;
-            color: #333;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-
-        .btn-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .login-btn {
-            background-color: #f1c40f;
-            color: black;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 48%;
-            transition: background 0.3s ease;
-        }
-
-        .login-btn:hover {
-            background-color: #e1b20d;
-        }
-
-        p {
-            margin-top: 15px;
-        }
-
-        a {
-            color: #333;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
 </head>
-<body>
+<body class="bg-sky-400 flex justify-center items-center h-screen">
 
-    <div class="container">
-        <h1>Login</h1>
-        <form id="loginForm">
-            <label for="usernameOrEmail">Username o Email</label>
-            <input type="text" id="usernameOrEmail" name="usernameOrEmail" required>
+    <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+        <h1 class="text-2xl font-bold text-center mb-6">Login</h1>
 
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required>
+        <form id="loginForm" class="space-y-4">
+            <div>
+                <label for="usernameOrEmail" class="block text-gray-700 font-medium">Username o Email</label>
+                <input type="text" id="usernameOrEmail" name="usernameOrEmail" required 
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+            </div>
 
-            <div class="btn-container">
-                <button type="submit" class="login-btn">Login</button>
+            <div>
+                <label for="password" class="block text-gray-700 font-medium">Password</label>
+                <input type="password" id="password" name="password" required 
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                <a href="recuperaPassoword.html" class="text-blue-600 hover:underline">Password dimenticata ?</a>
+            </div>
+
+            <div class="flex justify-center">
+                <button type="submit" 
+                    class="bg-yellow-400 text-black  px-6 py-2 rounded-md hover:bg-yellow-500 transition duration-200">
+                    Login
+                </button>
             </div>
         </form>
 
-        <p><a href="registra.html">Non hai un account? Registrati</a></p>
+        <p class="text-center mt-4">
+            <a href="registra.html" class="text-blue-600 hover:underline">Non hai un account? Registrati</a> <br>
+            <a href="mainHost.html" class="text-blue-600 hover:underline">Continua senza accedere</a>
+        </p>
     </div>
 
     <script>
@@ -136,7 +67,6 @@
                 }
                 
                 localStorage.setItem('jwt_token', result.token);
-                //alert('Login effettuato con successo');
                 window.location.href = 'main.html';
             } catch (error) {
                 console.error('Errore durante il login:', error);

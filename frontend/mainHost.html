@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagina con Pulsanti e Lista Segnalazioni</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex h-screen bg-white font-sans">
+
+    <!-- Metà sinistra con la mappa -->
+    <div class="ml-10 mb-10 mt-10 mr-10  w-1/2 h-9/10">
+        <div id="map" class="h-full"></div>
+    </div>
+
+    <!-- Metà destra con i bottoni e la lista delle segnalazioni -->
+    <div class="w-1/2 flex flex-col p-6">
+        
+        <!-- Sezione Bottoni -->
+        <div class="flex space-x-4 mb-6 justify-center">
+            <button class="px-6 py-3 text-lg text-white bg-red-500 rounded-lg hover:opacity-80"
+                onclick="window.location.href='registra.html'">
+                Registrati
+            </button>
+        </div>
+
+        <!-- Lista delle Segnalazioni (spostata più in basso con mt-10) -->
+        <div class="mt-20">
+            <h2 class="text-xl font-bold mb-4 text-gray-700">Segnalazioni Recenti</h2>
+            <ul id="segnalazioni-list" class="bg-gray-100 p-4 rounded-lg shadow-md max-h-80 overflow-auto">
+                <!-- Qui verranno inserite le segnalazioni dinamicamente -->
+            </ul>
+        </div>
+
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Inizializza la mappa
+        var map = L.map('map');
+
+        // Set up il tile layer (sfondo della mappa)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Geolocalizzazione dell'utente
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var userLat = position.coords.latitude;
+                var userLon = position.coords.longitude;
+
+                // Centra la mappa sulla posizione dell'utente
+                map.setView([userLat, userLon], 13);
+
+                // Aggiungi un marker sulla posizione dell'utente
+                L.marker([userLat, userLon]).addTo(map)
+                    .bindPopup("<b>Sei qui!</b>").openPopup();
+            }, function () {
+                alert("Impossibile ottenere la posizione.");
+                map.setView([46.066666, 11.116667], 13); // Default a Trento se geolocalizzazione fallisce
+            });
+        } else {
+            alert("Geolocalizzazione non supportata dal browser.");
+            map.setView([46.066666, 11.116667], 13);
+        }
+
+        // Funzione di Logout
+        function registrati() {
+            window.location.href = 'registra.html'; // Reindirizza alla pagina di login
+        }
+
+        // Simulazione di caricamento segnalazioni
+        const segnalazioni = [
+            { id: 1, titolo: "Buco nella strada", luogo: "Via Roma, Milano" },
+            { id: 2, titolo: "Semaforo non funzionante", luogo: "Piazza Garibaldi, Napoli" },
+            { id: 3, titolo: "Rifiuti abbandonati", luogo: "Corso Vittorio, Torino" }
+        ];
+
+        function caricaSegnalazioni() {
+            const lista = document.getElementById('segnalazioni-list');
+            segnalazioni.forEach(seg => {
+                const li = document.createElement('li');
+                li.classList.add('p-2', 'border-b', 'border-gray-300');
+                li.innerHTML = `<strong>${seg.titolo}</strong><br><span class="text-gray-600">${seg.luogo}</span>`;
+                lista.appendChild(li);
+            });
+        }
+
+        caricaSegnalazioni();
+    </script>
+
+</body>
+</html>
