@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pagina con Pulsanti</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <style>
         * {
             margin: 0;
@@ -20,6 +21,7 @@
         .left-half {
             width: 50%;
             background-color: #f4f4f4; /* Light gray background */
+            height: 100vh; /* Ensure full height */
         }
 
         .right-half {
@@ -60,11 +62,18 @@
         button:hover {
             opacity: 0.8;
         }
+
+        #map {
+            height: 100%; /* Ensure the map takes up the full height of the left half */
+        }
     </style>
 </head>
 <body>
 
-    <div class="left-half"></div>
+    <div class="left-half">
+        <!-- Map container -->
+        <div id="map"></div>
+    </div>
 
     <div class="right-half">
         <button class="profile-btn" onclick="window.location.href='profile.html'">Profilo</button>
@@ -72,7 +81,21 @@
         <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
 
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
+        // Initialize the map
+        var map = L.map('map').setView([46.066666, 11.116667], 13); // Set initial view (latitude, longitude, zoom level)
+
+        // Set up the tile layer (background map tiles)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Add a marker for demonstration (you can dynamically add markers later)
+        var marker = L.marker([46.066666, 11.116667]).addTo(map);
+        marker.bindPopup("<b>Trento</b>").openPopup();
+
+        // Function for logout
         function logout() {
             localStorage.removeItem('jwt_token'); // Remove the token from local storage
             alert('Logout effettuato');
