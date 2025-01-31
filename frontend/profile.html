@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profilo Utente</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .report-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .report-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .report-item:last-child {
+            border-bottom: none;
+        }
+
+        .report-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .report-description {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-btn, .logout-btn {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+
+        .back-btn {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .logout-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .back-btn:hover, .logout-btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Profilo Utente</h1>
+    
+    <div class="container">
+        <h2>Le tue segnalazioni</h2>
+        <ul class="report-list" id="reportList">
+            <li>Caricamento...</li>
+        </ul>
+
+        <div class="btn-container">
+            <button class="back-btn" onclick="window.location.href='main.html'">Torna alla Dashboard</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            const token = localStorage.getItem('jwt_token');
+            if (!token) {
+                alert('Accesso non autorizzato. Effettua il login.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            async function fetchReports() {
+                try {
+                    const response = await fetch('http://localhost:4000/api/get', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const data = await response.json();
+                    const reportList = document.getElementById('reportList');
+                    reportList.innerHTML = ''; // Clear previous content
+
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+
+                    if (data.reports.length === 0) {
+                        reportList.innerHTML = '<li>Nessuna segnalazione trovata.</li>';
+                        return;
+                    }
+
+                    data.reports.forEach(report => {
+                        const li = document.createElement('li');
+                        li.classList.add('report-item');
+
+                        li.innerHTML = `
+                            <div>
+                                <div class="report-title">${report.title}</div>
+                                <div class="report-description">${report.description}</div>
+                            </div>
+                            <button class="delete-btn" onclick="deleteReport('${report._id}')">Elimina</button>
+                        `;
+
+                        reportList.appendChild(li);
+                    });
+
+                } catch (error) {
+                    console.error('Errore nel recupero delle segnalazioni:', error);
+                    alert('Errore nel recupero delle segnalazioni.');
+                }
+            }
+
+            async function deleteReport(reportId) {
+                if (!confirm('Sei sicuro di voler eliminare questa segnalazione?')) {
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`http://localhost:4000/api/delete?id=${reportId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const data = await response.json();
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+
+                    alert('Segnalazione eliminata con successo');
+                    fetchReports(); // Refresh the list
+                } catch (error) {
+                    console.error('Errore durante l\'eliminazione:', error);
+                    alert('Errore durante l\'eliminazione della segnalazione.');
+                }
+            }
+
+            function logout() {
+                localStorage.removeItem('jwt_token'); // Remove token
+                alert('Logout effettuato.');
+                window.location.href = 'login.html';
+            }
+
+            fetchReports(); // Load reports on page load
+
+            window.deleteReport = deleteReport; // Expose function globally
+            window.logout = logout; // Expose logout function globally
+        });
+    </script>
+
+</body>
+</html>

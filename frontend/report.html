@@ -110,7 +110,7 @@
             <!-- Buttons -->
             <div class="form-group">
                 <button type="submit" class="submit-btn">Submit</button>
-                <button type="button" class="cancel-btn" onclick="window.location.href='/';">Cancel</button>
+                <button type="button" class="cancel-btn" onclick="window.location.href='main.html';">Cancel</button>
             </div>
         </form>
     </div>
@@ -173,7 +173,7 @@
                }
 
                 alert('Report submitted successfully');
-               window.location.href = '/';
+               window.location.href = 'main.html'; // Redirect to main page
             } )
             .catch(error => {
                 console.error('Error:', error);

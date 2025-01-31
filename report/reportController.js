@@ -57,7 +57,8 @@ exports.createReport = async (req, res) => {
 
 exports.deleteReport = async (req, res) => {
     try {
-        const reportId = req.params.id; 
+
+        const reportId = req.query.id; 
         const userId = req.user?._id; 
 
         if (!reportId || !userId) {
