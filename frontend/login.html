@@ -1,31 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #3498db;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .login-btn {
+            background-color: #f1c40f;
+            color: black;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 48%;
+            transition: background 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background-color: #e1b20d;
+        }
+
+        p {
+            margin-top: 15px;
+        }
+
+        a {
+            color: #333;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>Login</h1>
 
-    <form id="loginForm">
-        <!-- Field for username or email -->
-        <label for="usernameOrEmail">Username or Email</label>
-        <input type="text" id="usernameOrEmail" name="usernameOrEmail" required>
-        <br>
+    <div class="container">
+        <h1>Login</h1>
+        <form id="loginForm">
+            <label for="usernameOrEmail">Username o Email</label>
+            <input type="text" id="usernameOrEmail" name="usernameOrEmail" required>
 
-        <!-- Field for password -->
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required>
-        <br>
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
 
-        <!-- Button for login -->
-        <button type="submit">Login</button>
-        <!-- Button for register -->
-        <button type="button" onclick="window.location.href='registra.html'">Register</button>
-    </form>
+            <div class="btn-container">
+                <button type="submit" class="login-btn">Login</button>
+            </div>
+        </form>
 
-    <!-- Script for handling form submission -->
+        <p><a href="registra.html">Non hai un account? Registrati</a></p>
+    </div>
+
     <script>
         document.getElementById('loginForm').addEventListener('submit', async function (event) {
             event.preventDefault();
@@ -33,10 +115,8 @@
             const usernameOrEmail = document.getElementById('usernameOrEmail').value;
             const password = document.getElementById('password').value;
         
-            // Decide whether to send username or email
             const loginData = usernameOrEmail.includes('@') ? { email: usernameOrEmail } : { username: usernameOrEmail };
         
-            // Send login request
             try {
                 const response = await fetch('http://localhost:4000/api/login', {
                     method: 'POST',
@@ -44,27 +124,26 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        ...loginData,  // Send either email or username
+                        ...loginData,
                         password: password,
                     }),
                 });
                 
                 const result = await response.json();
-                console.log(result);
-                if(result.error) {
+                if (result.error) {
                     alert(result.error);
                     return;
                 }
-                else{
-                    localStorage.setItem('jwt_token', result.token);
-
-                    alert('Login successful');
-                    window.location.href = 'main.html';
-                }
+                
+                localStorage.setItem('jwt_token', result.token);
+                alert('Login effettuato con successo');
+                window.location.href = 'main.html';
             } catch (error) {
-                console.error('Error logging in:', error);
+                console.error('Errore durante il login:', error);
+                alert('Errore durante il login.');
             }
         });
     </script>
+
 </body>
 </html>
