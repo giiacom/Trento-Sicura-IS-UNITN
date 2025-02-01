@@ -112,3 +112,83 @@ exports.getAllReports = async (req, res) => {
         res.status(500).json({ error: 'Error fetching reports' });
     }
 };
+
+exports.getByID = async (req, res) => {
+    const reportId = req.query.id; 
+    const userId = req.user?._id; 
+
+    if (!reportId || !userId) {
+        return res.status(400).json({ error: 'Report ID and user authentication required' });
+    }
+
+    try {
+        const report = await Report.findById(reportId);
+
+        if (!report) {
+            return res.status(404).json({ error: 'Report not found' });
+        }
+
+        if (report.user.toString() !== userId.toString() && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'You are not authorized to edit this report' });
+        }
+
+        // Send the report details as response
+        res.status(200).json({ report });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error fetching report' });
+    }
+};
+
+exports.editReport = async (req, res) => {
+    try {
+        const { title, description, location } = req.body; // Extract updated fields from the request body
+        const reportId = req.query.id; // The report ID will be passed as a URL parameter
+        const userId = req.user?._id; // The ID of the currently authenticated user
+
+        // Ensure the report ID and user ID are provided
+        if (!reportId || !userId) {
+            return res.status(400).json({ error: 'Report ID and user authentication required' });
+        }
+
+        // Find the report by ID
+        const report = await Report.findById(reportId);
+        if (!report) {
+            return res.status(404).json({ error: 'Report not found' });
+        }
+
+        // Ensure the user is authorized to edit the report (must be the owner or an admin)
+        if (report.user.toString() !== userId.toString() && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'You are not authorized to edit this report' });
+        }
+
+        // Update the report fields with the new data
+        if (title) report.title = title;
+        if (description) report.description = description;
+
+        // Parse and update location if provided
+        if (location && location.trim()) {
+            try {
+                report.location = JSON.parse(location);
+            } catch {
+                return res.status(400).json({ error: 'Invalid location format' });
+            }
+        }
+
+        // Handle photo upload (if new photo is uploaded)
+        if (req.file) {
+            report.photo = req.file.path; // Update the photo field if a new file is uploaded
+        }
+
+        // Save the updated report to the database
+        await report.save();
+
+        // Return the updated report as a response
+        res.status(200).json({ message: 'Report updated successfully', report });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error updating report' });
+    }
+};

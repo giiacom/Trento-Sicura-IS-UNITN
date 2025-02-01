@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifica Report</title>
+    <link href="../src/output.css" rel="stylesheet">
+</head>
+<body class="bg-sky-400">
+
+    <div class="container mx-auto max-w-2xl my-12 bg-white p-6 rounded-lg shadow-md">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800">Modifica Segnalazione</h1>
+        <form id="edit-report-form" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <!-- Title Field -->
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                <input type="text" id="title" name="title" required placeholder="Enter report title"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <!-- Description Field -->
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                <textarea id="description" name="description" required placeholder="Describe the report"
+                          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 h-40"></textarea>
+            </div>
+
+            <!-- Location Field (Optional) -->
+            <div>
+                <label for="location" class="block text-sm font-medium text-gray-700">Location (Optional)</label>
+                <input type="text" id="location" name="location" placeholder="Enter location (e.g., city, coordinates)"
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <!-- Photo Upload Field (Optional) -->
+            <div>
+                <label for="photo" class="block text-sm font-medium text-gray-700">Upload Photo (Optional)</label>
+                <input type="file" id="photo" name="photo" accept="image/*"
+                       class="mt-1 block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none">
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex justify-center space-x-4">
+                <button type="submit" 
+                        class="px-6 py-2 bg-green-500 text-white font-medium rounded-md hover:bg-green-600 transition-colors">
+                    Submit
+                </button>
+                <button type="button" onclick="window.location.href='profile.html';"
+                        class="px-6 py-2 bg-red-500 text-white font-medium rounded-md hover:bg-red-600 transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const reportId = urlParams.get('id');  // Get the report ID from the URL
+    
+            if (!reportId) {
+                alert('Invalid report ID');
+                window.location.href = 'profile.html';
+                return;
+            }
+    
+            const token = localStorage.getItem('jwt_token');
+            if (!token) {
+                alert('Please log in to modify a report.');
+                window.location.href = 'login.html';
+                return;
+            }
+    
+            // Fetch the report details to pre-fill the form
+            try {
+                const response = await fetch(`http://localhost:4000/api/getReport?id=${reportId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+    
+                const data = await response.json();
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+    
+                // Populate the form fields with the report data
+                document.getElementById('title').value = data.report.title;
+                document.getElementById('description').value = data.report.description;
+                document.getElementById('location').value = JSON.stringify(data.report.location) || ''; // Ensure valid JSON string for location
+                // If there is an image URL, handle it here (e.g., display the image)
+    
+                // Handle form submission
+                const form = document.getElementById('edit-report-form');
+                form.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+    
+                    const formData = new FormData(form);
+                    formData.append('title', document.getElementById('title').value);
+                    formData.append('description', document.getElementById('description').value);
+    
+                    // Get location value and handle optional field
+                    let location = document.getElementById('location').value;
+    
+                    if (location.trim()) {
+                        try {
+                            // Only parse the location if it's not empty
+                            const parsedLocation = JSON.parse(location);
+                            formData.append('location', JSON.stringify(parsedLocation));
+                        } catch (error) {
+                            alert('Invalid location format');
+                            return;
+                        }
+                    } else {
+                        formData.append('location', '');  // If location is empty, append an empty value
+                    }
+    
+                    const photo = document.getElementById('photo').files[0];
+                    if (photo) {
+                        formData.append('photo', photo);
+                    }
+    
+                    try {
+                        const updateResponse = await fetch(`http://localhost:4000/api/editReport?id=${reportId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: formData
+                        });
+    
+                        const updateData = await updateResponse.json();
+                        if (updateData.error) {
+                            alert(updateData.error);
+                            return;
+                        }
+    
+                        alert('Report updated successfully');
+                        window.location.href = 'profile.html';  // Redirect back to the profile page
+                    } catch (error) {
+                        console.error('Error updating report:', error);
+                        alert('Error updating report');
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching report:', error);
+                alert('Error fetching report');
+            }
+        });
+    </script>
+</body>
+</html>
