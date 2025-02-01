@@ -102,3 +102,13 @@ exports.getUserReports = async (req, res) => {
         res.status(500).json({ error: 'Error fetching user reports' });
     }
 };
+
+exports.getAllReports = async (req, res) => {
+    try {
+        const reports = await Report.find().sort({ createdAt: -1 });
+        res.status(200).json({ reports: reports || [] }); // Ensure it's always an array
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error fetching reports' });
+    }
+};

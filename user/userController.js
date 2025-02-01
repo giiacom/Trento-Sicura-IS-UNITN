@@ -110,6 +110,77 @@ exports.login = async (req, res) => {
 };
 
 
+exports.data = async (req, res) => {
+    try {
+        const userId = req.user?._id;
+        if (!userId) {
+            return res.status(401).json({ error: 'User authentication required' });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.status(200).json({
+            user: {
+                username: user.username,
+                email: user.email,
+                phone: user.phone,
+                role: user.role
+            }
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+
+exports.updatePassword = async (req, res) => {
+    try {
+        const { password } = req.body;
+        const userId = req.user?._id;
+
+        // Validate password
+        if (!password) {
+            return res.status(400).json({ error: 'Password is required' });
+        }
+
+        if (!/\d/.test(password)) {
+            return res.status(400).json({ error: "Password must contain at least one number (0-9)" });
+        }
+
+        // Check if password contains at least one special character from the allowed set
+        if (!/[.@_\-!#$%&]/.test(password)) {
+            return res.status(400).json({ error: "Password must contain at least one special character (@ . - _ ! # $ % &)" });
+        }
+
+        // Hash the new password
+        const saltRounds = 10; // Adjust this for desired security/performance tradeoff
+        const hashedPassword = bcrypt.hashSync(password, saltRounds);
+
+        // Find the user and update the password
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Update the password
+        user.password = hashedPassword;
+        await user.save();
+
+        // Respond with a success message
+        res.json({
+            message: 'Password updated successfully',
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error updating the password. Please try again.' });
+    }
+};
 
 
 

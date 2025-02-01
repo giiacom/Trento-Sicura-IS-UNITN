@@ -81,24 +81,34 @@
             window.location.href = 'login.html'; // Reindirizza alla pagina di login
         }
 
-        // Simulazione di caricamento segnalazioni
-        const segnalazioni = [
-            { id: 1, titolo: "Buco nella strada", luogo: "Via Roma, Milano" },
-            { id: 2, titolo: "Semaforo non funzionante", luogo: "Piazza Garibaldi, Napoli" },
-            { id: 3, titolo: "Rifiuti abbandonati", luogo: "Corso Vittorio, Torino" }
-        ];
+        async function caricaSegnalazioni() {
+    try {
+        const response = await fetch('http://localhost:4000/api/all');
+        const data = await response.json();  // Parse JSON response
 
-        function caricaSegnalazioni() {
-            const lista = document.getElementById('segnalazioni-list');
-            segnalazioni.forEach(seg => {
-                const li = document.createElement('li');
-                li.classList.add('p-2', 'border-b', 'border-gray-300');
-                li.innerHTML = `<strong>${seg.titolo}</strong><br><span class="text-gray-600">${seg.luogo}</span>`;
-                lista.appendChild(li);
-            });
+        // Check if "reports" is actually an array
+        if (!Array.isArray(data.reports)) {
+            console.error("API response is not an array:", data);
+            return;
         }
 
-        caricaSegnalazioni();
+        const lista = document.getElementById('segnalazioni-list');
+        lista.innerHTML = ''; // Clear existing list before adding new ones
+
+        data.reports.forEach(seg => {
+            const li = document.createElement('li');
+            li.classList.add('p-2', 'border-b', 'border-gray-300');
+            li.innerHTML = `<strong>${seg.title}</strong><br><span class="text-gray-600">${seg.description}</span>`;
+            lista.appendChild(li);
+        });
+
+    } catch (error) {
+        console.error("Error fetching reports:", error);
+    }
+}
+
+// Call the function when the page loads
+caricaSegnalazioni();
     </script>
 
 </body>

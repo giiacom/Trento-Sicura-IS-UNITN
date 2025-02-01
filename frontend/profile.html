@@ -13,13 +13,13 @@
         <div class="w-1/2 bg-white p-6 rounded-lg shadow-md">
             <h1 class="text-3xl font-bold mb-4 text-gray-800 text-center">Profilo Utente</h1>
             <div class="border-t border-gray-300 pt-4 space-y-2">
-                <p class="text-lg"><strong>Nome:</strong> Mario Rossi</p>
-                <p class="text-lg"><strong>Email:</strong> mario.rossi@example.com</p>
-                <p class="text-lg"><strong>Data di registrazione:</strong> 01/01/2023</p>
-                <p class="text-lg"><strong>Ruolo:</strong> Utente</p>
+                <!-- Dynamic user data -->
+                <p id="user-name" class="text-lg"><strong>Nome:</strong> Caricamento...</p>
+                <p id="user-email" class="text-lg"><strong>Email:</strong> Caricamento...</p>
+                <p id="user-registration" class="text-lg"><strong>Data di registrazione:</strong> Caricamento...</p>
+                <p id="user-role" class="text-lg"><strong>Ruolo:</strong> Caricamento...</p>
                 <p class="text-blue-600 hover:underline"> <a href="modificaProfilo.html">Modifica profilo</a></p>
             </div>
-           
         </div>
 
         <!-- Metà destra: Lista delle segnalazioni -->
@@ -59,6 +59,36 @@
                 return;
             }
 
+            // Function to fetch user profile data
+            async function fetchUserProfile() {
+                try {
+                    const response = await fetch('http://localhost:4000/api/data', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    // Populate user profile data dynamically
+                    if (data.user) {
+
+                        document.getElementById('user-name').textContent = `Nome: ${data.user.username}`;
+                        document.getElementById('user-email').textContent = `Email: ${data.user.email}`;
+                        document.getElementById('user-registration').textContent = `Numero di telefono: -`;
+                        document.getElementById('user-role').textContent = `Ruolo: ${data.user.role}`;
+                    }
+
+                } catch (error) {
+                    console.error('Errore nel recupero del profilo utente:', error);
+                    alert('Errore nel recupero del profilo utente.');
+                }
+            }
+
+            // Fetch user profile data when the page loads
+            fetchUserProfile();
+
             async function fetchReports() {
                 try {
                     const response = await fetch('http://localhost:4000/api/get', {
@@ -92,14 +122,13 @@
                                 <div class="text-gray-600">${report.description}</div>
                             </div>
                             <button class="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600 transition-colors ml-2 mr-2" 
-                                    onclick="/('${report._id}')">
+                                    onclick="editReport('${report._id}')">
                                 Modifica
                             </button>
                             <button class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors" 
                                     onclick="deleteReport('${report._id}')">
                                 Elimina
                             </button>
-                            
                         `;
 
                         reportList.appendChild(li);
@@ -111,6 +140,7 @@
                 }
             }
 
+            // Function to handle report deletion
             async function deleteReport(reportId) {
                 if (!confirm('Sei sicuro di voler eliminare questa segnalazione?')) {
                     return;
@@ -138,6 +168,7 @@
                 }
             }
 
+            // Logout function
             function logout() {
                 localStorage.removeItem('jwt_token'); // Remove token
                 alert('Logout effettuato.');
@@ -146,7 +177,7 @@
 
             fetchReports(); // Load reports on page load
 
-            window.deleteReport = deleteReport; // Expose function globally
+            window.deleteReport = deleteReport; // Expose deleteReport globally
             window.logout = logout; // Expose logout function globally
         });
     </script>
