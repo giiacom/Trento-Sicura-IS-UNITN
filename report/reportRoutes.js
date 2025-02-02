@@ -12,6 +12,5 @@ router.delete('/delete', authenticate, reportController.deleteReport);
 router.get('/get', authenticate, reportController.getUserReports);
 router.get('/all', reportController.getAllReports);
 router.get('/getReport', authenticate, reportController.getByID);
-router.put('/editReport', authenticate, reportController.editReport);
-
+router.put('/editReport', authenticate, upload.single('photo'), reportController.editReport);
 module.exports = router;

@@ -1,5 +1,7 @@
 const Report = require('./reportModule');
 const User = require('../user/userModule');
+const multer = require('multer');
+
 
 exports.createReport = async (req, res) => {
     try {
@@ -141,34 +143,37 @@ exports.getByID = async (req, res) => {
     }
 };
 
+
 exports.editReport = async (req, res) => {
     try {
-        const { title, description, location } = req.body; // Extract updated fields from the request body
-        const reportId = req.query.id; // The report ID will be passed as a URL parameter
-        const userId = req.user?._id; // The ID of the currently authenticated user
 
-        // Ensure the report ID and user ID are provided
+        // Ensure values are extracted correctly from arrays
+        const title = Array.isArray(req.body.title) ? req.body.title[0] : req.body.title;
+        const description = Array.isArray(req.body.description) ? req.body.description[0] : req.body.description;
+        let location = Array.isArray(req.body.location) ? req.body.location[0] : req.body.location;
+
+        const reportId = req.query.id; 
+        const userId = req.user?._id; 
+
+
         if (!reportId || !userId) {
             return res.status(400).json({ error: 'Report ID and user authentication required' });
         }
 
-        // Find the report by ID
         const report = await Report.findById(reportId);
         if (!report) {
             return res.status(404).json({ error: 'Report not found' });
         }
 
-        // Ensure the user is authorized to edit the report (must be the owner or an admin)
         if (report.user.toString() !== userId.toString() && req.user.role !== 'admin') {
             return res.status(403).json({ error: 'You are not authorized to edit this report' });
         }
 
-        // Update the report fields with the new data
         if (title) report.title = title;
         if (description) report.description = description;
 
-        // Parse and update location if provided
-        if (location && location.trim()) {
+        // Check if location exists and is a string before parsing
+        if (location && typeof location === 'string' && location.trim()) {
             try {
                 report.location = JSON.parse(location);
             } catch {
@@ -176,15 +181,12 @@ exports.editReport = async (req, res) => {
             }
         }
 
-        // Handle photo upload (if new photo is uploaded)
         if (req.file) {
-            report.photo = req.file.path; // Update the photo field if a new file is uploaded
+            report.photo = req.file.path;
         }
 
-        // Save the updated report to the database
         await report.save();
 
-        // Return the updated report as a response
         res.status(200).json({ message: 'Report updated successfully', report });
 
     } catch (error) {

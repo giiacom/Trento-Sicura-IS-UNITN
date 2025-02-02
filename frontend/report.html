@@ -28,7 +28,7 @@
             <!-- Location Field (Optional) -->
             <div>
                 <label for="location" class="block text-sm font-medium text-gray-700">Location (Optional)</label>
-                <input type="text" id="location" name="location" placeholder="Enter location (e.g., city, coordinates)"
+                <input type="text" id="location" name="location" placeholder="Enter location (e.g. {'lat': 123, 'lng': 456})"
                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
             </div>
 
@@ -56,40 +56,50 @@
     <script>
         document.querySelector('form').addEventListener('submit', function(event) {
             event.preventDefault();
-
+    
             const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
-            console.log('Title:', title);
-            console.log('Description:', description);
-            const location = document.getElementById('location').value;
             const photo = document.getElementById('photo').files[0];
-
+            let location = document.getElementById('location').value.trim();
+            
+            if (location) {
+                try {
+                    // Try to parse the location as a JSON string if it's a valid JSON format
+                    location = JSON.parse(location);  // It should be an object with lat and lng properties
+                } catch (error) {
+                    alert('Invalid location format, please enter a valid JSON object like {"lat": 123, "lng": 456}');
+                    return;
+                }
+            } else {
+                location = {};  // Set to an empty object if no location is provided
+            }
+    
             const token = localStorage.getItem('jwt_token'); // Assuming the token is saved as 'jwt_token'
-
+    
             if (!token) {
                 alert('Please log in to submit a report.');
                 window.location.href = 'login.html'; // Redirect to login if no token
                 return;
             }
-
+    
             // Validate title and description
             if (!title || !description) {
                 alert("Title and description are required.");
                 return;
             }
-
+    
             const formData = new FormData();
             formData.append('title', title);
             formData.append('description', description);
-            formData.append('location', location);  // Optional, can be empty
+            formData.append('location', JSON.stringify(location));  // Send the location as a stringified JSON object
             if (photo) {
                 formData.append('photo', photo); // Optional photo
             }
-
+    
             for (let [key, value] of formData.entries()) {
                 console.log(key, value);
             }
-
+    
             fetch('http://localhost:4000/api/create', {
                 method: 'POST',
                 headers: {
@@ -108,12 +118,12 @@
             .then(data => {
                 if (data.error) {
                     alert(data.error);  // Show the error from the server
-                   return;
-               }
-
+                    return;
+                }
+    
                 alert('Report submitted successfully');
-               window.location.href = 'main.html'; // Redirect to main page
-            } )
+                window.location.href = 'main.html'; // Redirect to main page
+            })
             .catch(error => {
                 console.error('Error:', error);
                 alert('An error occurred: ' + error.message);

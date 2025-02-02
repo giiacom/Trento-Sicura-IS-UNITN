@@ -85,12 +85,15 @@
                     alert(data.error);
                     return;
                 }
-    
+                
+            
+
                 // Populate the form fields with the report data
                 document.getElementById('title').value = data.report.title;
                 document.getElementById('description').value = data.report.description;
                 document.getElementById('location').value = JSON.stringify(data.report.location) || ''; // Ensure valid JSON string for location
                 // If there is an image URL, handle it here (e.g., display the image)
+
     
                 // Handle form submission
                 const form = document.getElementById('edit-report-form');
@@ -100,7 +103,8 @@
                     const formData = new FormData(form);
                     formData.append('title', document.getElementById('title').value);
                     formData.append('description', document.getElementById('description').value);
-    
+
+
                     // Get location value and handle optional field
                     let location = document.getElementById('location').value;
     
@@ -121,6 +125,7 @@
                     if (photo) {
                         formData.append('photo', photo);
                     }
+
     
                     try {
                         const updateResponse = await fetch(`http://localhost:4000/api/editReport?id=${reportId}`, {
@@ -130,6 +135,8 @@
                             },
                             body: formData
                         });
+
+
     
                         const updateData = await updateResponse.json();
                         if (updateData.error) {
