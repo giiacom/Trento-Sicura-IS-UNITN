@@ -61,10 +61,8 @@
 
                 // Centra la mappa sulla posizione dell'utente
                 map.setView([userLat, userLon], 13);
-
-                // Aggiungi un marker sulla posizione dell'utente
-                L.marker([userLat, userLon]).addTo(map)
-                    .bindPopup("<b>Sei qui!</b>").openPopup();
+                console.log(userLat, userLon);
+                
             }, function () {
                 alert("Impossibile ottenere la posizione.");
                 map.setView([46.066666, 11.116667], 13); // Default a Trento se geolocalizzazione fallisce
@@ -100,6 +98,15 @@
             li.classList.add('p-2', 'border-b', 'border-gray-300');
             li.innerHTML = `<strong>${seg.title}</strong><br><span class="text-gray-600">${seg.description}</span>`;
             lista.appendChild(li);
+
+            if (seg.location && seg.location.lat && seg.location.lng) {
+                    const lat = seg.location.lat;
+                    const lng = seg.location.lng;
+
+                    // Add a marker for the report's location
+                    L.marker([lat, lng]).addTo(map)
+                        .bindPopup(`<b>${seg.title}</b><br>${seg.description}`).openPopup();
+                }
         });
 
     } catch (error) {
