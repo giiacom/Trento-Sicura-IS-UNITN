@@ -11,17 +11,18 @@
 <body class="bg-gray-200 flex items-center justify-center h-screen">
 
     <div class="bg-white p-4 rounded-lg shadow-lg w-full max-w-2xl h-[80vh] flex flex-col">
-        <h2 class="text-lg font-semibold mb-2">Select a Location</h2>
+        <h2 class="text-lg font-semibold mb-2">Seleziona la posizione</h2>
 
         <!-- Map Container -->
         <div id="map" class="w-full" style="height: 80vh;"></div>
         <div class="flex justify-end space-x-4 mt-4">
-            <button onclick="cancelSelection()" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
-                Cancel
-            </button>
             <button onclick="confirmLocation()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                Confirm
+                Conferma
             </button>
+            <button onclick="cancelSelection()" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+                Cancella
+            </button>
+            
         </div>
     </div>
     
