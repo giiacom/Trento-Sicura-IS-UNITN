@@ -4,8 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select Location</title>
+    
+    <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
+    <!-- Leaflet Control Geocoder (Search Plugin) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
     <link href="../src/output.css" rel="stylesheet">
 </head>
 <body class="bg-gray-200 flex items-center justify-center h-screen">
@@ -15,6 +22,7 @@
 
         <!-- Map Container -->
         <div id="map" class="w-full" style="height: 80vh;"></div>
+        
         <div class="flex justify-end space-x-4 mt-4">
             <button onclick="confirmLocation()" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                 Conferma
@@ -22,10 +30,9 @@
             <button onclick="cancelSelection()" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
                 Cancella
             </button>
-            
         </div>
     </div>
-    
+
     <script>
         let selectedLatLng = null;
         let map, marker;
@@ -33,7 +40,6 @@
         window.onload = function () {
             console.log("Initializing map...");
 
-            // Check if Leaflet is loaded
             if (typeof L === 'undefined') {
                 console.error("Leaflet library failed to load!");
                 return;
@@ -43,55 +49,63 @@
 
             try {
                 // Initialize the map
-                if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function (position) {
-                var userLat = position.coords.latitude;
-                var userLon = position.coords.longitude;
-    
-                // Center the map on the user's position
-                map.setView([userLat, userLon], 13);
-            }, function () {
-                alert("Impossibile ottenere la posizione.");
-                map.setView([46.066666, 11.116667], 13); // Default to Trento if geolocation fails
-            });
-        } else {
-            alert("Geolocalizzazione non supportata dal browser.");
-            map.setView([46.066666, 11.116667], 13);
-        }
-        
-                map = L.map('map')
-
-                // Tile Layer from OpenStreetMap
+                map = L.map('map').setView([46.066666, 11.116667], 13); // Default to Trento
+                
+                // Add OpenStreetMap tile layer
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; OpenStreetMap contributors'
                 }).addTo(map);
 
-                // Handle click on the map
+                // Add geolocation support
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        let userLat = position.coords.latitude;
+                        let userLon = position.coords.longitude;
+                        map.setView([userLat, userLon], 13);
+                    }, function () {
+                        alert("Impossibile ottenere la posizione.");
+                    });
+                }
+
+                // Add search bar to the map
+                L.Control.geocoder({
+                    defaultMarkGeocode: false
+                }).on('markgeocode', function (e) {
+                    let latlng = e.geocode.center;
+                    map.setView(latlng, 15);
+                    placeMarker(latlng);
+                    selectedLatLng = latlng;
+                }).addTo(map);
+
+                // Click event to place marker manually
                 map.on('click', function (e) {
                     selectedLatLng = e.latlng;
-
-                    // Place or update the marker
-                    if (marker) {
-                        marker.setLatLng(selectedLatLng);
-                    } else {
-                        marker = L.marker(selectedLatLng).addTo(map);
-                    }
+                    placeMarker(selectedLatLng);
                 });
+
             } catch (error) {
                 console.error("Error initializing the map:", error);
             }
         };
 
+        function placeMarker(latlng) {
+            if (marker) {
+                marker.setLatLng(latlng);
+            } else {
+                marker = L.marker(latlng).addTo(map);
+            }
+        }
+
         function cancelSelection() {
-            window.location.href = 'report.html'; // Go back to the report form without saving
+            window.location.href = 'report.html';
         }
 
         function confirmLocation() {
             if (selectedLatLng) {
                 const locationString = `{"lat": ${selectedLatLng.lat.toFixed(6)}, "lng": ${selectedLatLng.lng.toFixed(6)}}`;
-                localStorage.setItem('selectedLocation', locationString); // Store location in localStorage
+                localStorage.setItem('selectedLocation', locationString);
             }
-            window.location.href = 'report.html'; // Go back to the report form
+            window.location.href = 'report.html';
         }
     </script>
 

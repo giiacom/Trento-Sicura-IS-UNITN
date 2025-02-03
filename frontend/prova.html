@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Box with Eye Icon</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script> <!-- Font Awesome -->
+    <style>
+        /* Style the input box container */
+        .input-container {
+            position: relative;
+            width: 300px;
+            margin: 50px auto;
+        }
+
+        /* Style the input box */
+        .input-box {
+            width: 100%;
+            padding: 10px 40px 10px 10px; /* Adding space for the eye icon */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        /* Position the eye icon inside the input box */
+        .eye-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="input-container">
+        <input type="password" id="password" class="input-box" placeholder="Enter your password">
+        <i id="togglePassword" class="fas fa-eye eye-icon"></i>
+    </div>
+
+    <script>
+        const togglePassword = document.getElementById("togglePassword");
+        const passwordInput = document.getElementById("password");
+
+        togglePassword.addEventListener("click", function () {
+            const type = passwordInput.type === "password" ? "text" : "password";
+            passwordInput.type = type;
+
+            // Toggle the eye icon
+            togglePassword.classList.toggle("fa-eye-slash");
+        });
+    </script>
+
+</body>
+</html>

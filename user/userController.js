@@ -185,16 +185,6 @@ exports.updatePassword = async (req, res) => {
 
 
 
-//DA CANCELLARE / NON USARE
-
-exports.report = async (req, res) => {
-    try {
-        
-    } catch (error) {
-        
-    }
-}
-
 exports.adminRegisterRole = async (req, res) => {
     try {
         const { username, email, password, phone } = req.body;

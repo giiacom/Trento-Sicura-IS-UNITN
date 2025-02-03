@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recupera Password</title>
+    <link href="../src/output.css" rel="stylesheet">
+</head>
+<body class="bg-sky-400 flex justify-center items-center h-screen">
+
+    <div class="bg-white p-8 rounded-lg shadow-lg w-96">
+        <h1 class="text-2xl font-bold text-center mb-4">Recupera Password</h1>
+        <p class="text-center text-gray-600 mb-6">Inserisci la tua email per ricevere un link di reset</p>
+
+        <form id="recoverForm" class="space-y-4">
+            <div>
+                <label for="email" class="block text-gray-700 font-medium">Email</label>
+                <input type="email" id="email" name="email" required 
+                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <div class="flex justify-center">
+                <button type="submit" 
+                    class="bg-yellow-400 text-black px-6 py-2 rounded-md hover:bg-yellow-500 transition duration-200">
+                    Invia Link
+                </button>
+            </div>
+        </form>
+
+        <p class="text-center mt-4">
+            <a href="login.html" class="text-gray-700 font-medium hover:text-gray-900 hover:underline">
+                Torna al Login
+            </a>
+        </p>
+
+        <!-- Success / Error Message -->
+        <p id="message" class="text-center mt-4 font-medium"></p>
+    </div>
+
+    <script>
+        document.getElementById('recoverForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const email = document.getElementById('email').value;
+            const messageBox = document.getElementById('message');
+            messageBox.textContent = "";
+
+            try {
+                const response = await fetch('http://localhost:4000/api/recover-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email }),
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    messageBox.textContent = result.error;
+                    messageBox.classList.add("text-red-600");
+                    return;
+                }
+
+                messageBox.textContent = "Email inviata! Controlla la tua casella di posta.";
+                messageBox.classList.add("text-green-600");
+            } catch (error) {
+                console.error('Errore:', error);
+                messageBox.textContent = "Errore nel recupero della password.";
+                messageBox.classList.add("text-red-600");
+            }
+        });
+    </script>
+
+</body>
+</html>
