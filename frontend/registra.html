@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trento Sicura</title>
     <link href="../src/output.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script> <!-- Font Awesome CDN -->
 </head>
 <body class="flex items-center justify-center min-h-screen bg-sky-400">
 
@@ -23,10 +24,15 @@
                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
             </div>
 
-            <div>
+            <div class="relative">
                 <label for="password" class="block text-sm font-medium text-gray-700">Inserisci Password</label>
                 <input type="password" id="password" name="password" required
-                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                       class="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                
+                <!-- Eye icon to toggle password visibility -->
+                <span id="togglePassword" class="absolute right-2 top-1 transform -translate-y-1 cursor-pointer text-gray-500">
+                    <i id="eye-icon" class="fas fa-eye"></i>
+                </span>
             </div>
 
             <div class="flex justify-center">
@@ -68,9 +74,28 @@
                     alert(data.error);
                     return;
                 }
-                //alert('Registrazione avvenuta con successo');
                 window.location.href = 'login.html';
             });
+        });
+
+        // Toggle password visibility
+        const togglePassword = document.getElementById("togglePassword");
+        const passwordField = document.getElementById("password");
+        const eyeIcon = document.getElementById("eye-icon");
+
+        togglePassword.addEventListener("click", function () {
+            // Toggle the type of the password field
+            const type = passwordField.type === "password" ? "text" : "password";
+            passwordField.type = type;
+
+            // Toggle the eye icon (eye-open and eye-slash)
+            if (type === "password") {
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            } else {
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
+            }
         });
     </script>
 
