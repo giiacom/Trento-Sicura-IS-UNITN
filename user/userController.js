@@ -36,6 +36,9 @@ exports.register = async (req, res) => {
         if (!/[.@_\-!#$%&]/.test(password)) {
             return res.status(400).json({ error: "Password deve contenere almeno un carattere speciale (@ . - _ ! # $ % &)" });
         }
+        if (password.length < 6) {
+            return res.status(400).json({ error: "La password deve essere lunga almeno 6 caratteri" });
+        }
         
         const saltRounds = 10; // Adjust this for desired security/performance tradeoff
         const hashedPassword = bcrypt.hashSync(password, saltRounds);
@@ -165,6 +168,9 @@ exports.updatePassword = async (req, res) => {
         // Check if password contains at least one special character from the allowed set
         if (!/[.@_\-!#$%&]/.test(password)) {
             return res.status(400).json({ error: "Password deve contenere almeno un carattere speciale (@ . - _ ! # $ % &)" });
+        }
+        if (password.length < 6) {
+            return res.status(400).json({ error: "La password deve essere lunga almeno 6 caratteri" });
         }
 
         // Hash the new password
@@ -350,6 +356,9 @@ exports.recoverPassword = async (req, res) => {
     
             if (!/[.@_\-!#$%&]/.test(newPassword)) {
                 return res.status(400).json({ error: "Password deve contenere almeno un carattere speciale (@ . - _ ! # $ % &)" });
+            }
+            if (newPassword.length < 6) {
+                return res.status(400).json({ error: "La password deve essere lunga almeno 6 caratteri" });
             }
     
             // Verify token and get user
