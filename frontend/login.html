@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../src/output.css" rel="stylesheet">
     <title>Login</title>
+    <link href="./output.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
 </head>
 <body class="bg-sky-400 flex justify-center items-center h-screen">
 
@@ -18,16 +19,19 @@
                     class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
             </div>
 
-            <div>
+            <div class="relative">
                 <label for="password" class="block text-gray-700 font-medium">Password</label>
                 <input type="password" id="password" name="password" required 
-                    class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                <a href="recuperaPassoword.html" class="text-blue-600 hover:underline">Password dimenticata ?</a>
+                    class="w-full p-2 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                <span id="togglePassword" class="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500">
+                    <i id="eye-icon" class="fas fa-eye"></i>
+                </span>
+                <a href="recuperaPassoword.html" class="text-blue-600 hover:underline block mt-1">Password dimenticata?</a>
             </div>
 
             <div class="flex justify-center">
                 <button type="submit" 
-                    class="bg-yellow-400 text-black  px-6 py-2 rounded-md hover:bg-yellow-500 transition duration-200">
+                    class="bg-yellow-400 text-black px-6 py-2 rounded-md hover:bg-yellow-500 transition duration-200">
                     Login
                 </button>
             </div>
@@ -40,24 +44,18 @@
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async function (event) {
+        document.getElementById("loginForm").addEventListener("submit", async function (event) {
             event.preventDefault();
             
-            const usernameOrEmail = document.getElementById('usernameOrEmail').value;
-            const password = document.getElementById('password').value;
-        
-            const loginData = usernameOrEmail.includes('@') ? { email: usernameOrEmail } : { username: usernameOrEmail };
-        
+            const usernameOrEmail = document.getElementById("usernameOrEmail").value;
+            const password = document.getElementById("password").value;
+            const loginData = usernameOrEmail.includes("@") ? { email: usernameOrEmail } : { username: usernameOrEmail };
+            
             try {
                 const response = await fetch('http://localhost:4000/api/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        ...loginData,
-                        password: password,
-                    }),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...loginData, password })
                 });
                 
                 const result = await response.json();
@@ -71,6 +69,24 @@
             } catch (error) {
                 console.error('Errore durante il login:', error);
                 alert('Errore durante il login.');
+            }
+        });
+
+        // Toggle password visibility
+        const togglePassword = document.getElementById("togglePassword");
+        const passwordField = document.getElementById("password");
+        const eyeIcon = document.getElementById("eye-icon");
+
+        togglePassword.addEventListener("click", function () {
+            const type = passwordField.type === "password" ? "text" : "password";
+            passwordField.type = type;
+            
+            if (type === "password") {
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            } else {
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
             }
         });
     </script>

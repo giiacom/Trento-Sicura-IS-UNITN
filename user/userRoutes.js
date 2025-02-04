@@ -9,6 +9,8 @@ router.post('/login', userController.login);
 router.post('/register', userController.register);
 router.get('/data', authenticate, userController.data);
 router.post('/password', authenticate, userController.updatePassword);
+router.post('/recoverPassword', userController.recoverPassword);
+router.post('/resetPassword', userController.resetPassword);
 
 
 router.post('/adminRegisterRole', authenticate, authorize(['admin']), userController.adminRegisterRole);

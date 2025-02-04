@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recupera Password</title>
-    <link href="../src/output.css" rel="stylesheet">
+    <link href="./output.css" rel="stylesheet">
 </head>
 <body class="bg-sky-400 flex justify-center items-center h-screen">
 
@@ -46,7 +46,7 @@
             messageBox.textContent = "";
 
             try {
-                const response = await fetch('http://localhost:4000/api/recover-password', {
+                const response = await fetch('http://localhost:4000/api/recoverPassword', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

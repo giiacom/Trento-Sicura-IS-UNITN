@@ -1,6 +1,16 @@
 const jwt = require('jsonwebtoken');
 const User = require('./userModule'); 
 const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
+
+
+const transporter = nodemailer.createTransport({
+    service: 'Gmail', // You can use any other email provider
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+});
 
 
 exports.register = async (req, res) => {
@@ -8,23 +18,23 @@ exports.register = async (req, res) => {
         const { username, email, password, phone } = req.body;
 
         if (!username || !email || !password) {
-            return res.status(400).json({ error: 'Username, email, and password are required' });
+            return res.status(400).json({ error: 'Username, email, e password sono obbligatori' });
         }
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ error: 'Email is already taken' });
+            return res.status(400).json({ error: 'Email già in uso' });
         }
         const existingUsername = await User.findOne({ username });
         if (existingUsername) {
-            return res.status(400).json({ error: 'Username is already taken' });
+            return res.status(400).json({ error: 'Username già in uso' });
         }
         if (!/\d/.test(password)) {
-            return res.status(400).json({ error: "Password must contain at least one number (0-9)" });
+            return res.status(400).json({ error: "Password deve contenere almeno un numero (0-9)" });
         }
         // Check if password contains at least one special character from the allowed set
         if (!/[.@_\-!#$%&]/.test(password)) {
-            return res.status(400).json({ error: "Password must contain at least one special character (@ . - _ ! # $ % &)" });
+            return res.status(400).json({ error: "Password deve contenere almeno un carattere speciale (@ . - _ ! # $ % &)" });
         }
         
         const saltRounds = 10; // Adjust this for desired security/performance tradeoff
@@ -41,7 +51,7 @@ exports.register = async (req, res) => {
 
         // Respond with a success message
         res.status(201).json({
-            message: 'Registration completed',
+            message: 'Registrazione completata',
             user: {
                 username: newUser.username,
                 email: newUser.email,
@@ -52,7 +62,7 @@ exports.register = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Registration not succesful, try again' });
+        res.status(500).json({ error: 'Errore di registrazione, prova di nuovo' });
     }
 };
 
@@ -61,10 +71,10 @@ exports.login = async (req, res) => {
     const { email, username, password } = req.body;
 
     if (!email && !username) {
-        return res.status(400).json({ error: 'Email or username are required' });
+        return res.status(400).json({ error: 'Email o username sono obbligatori' });
     }
     if (!password) {
-        return res.status(400).json({ error: 'Password is required' });
+        return res.status(400).json({ error: 'Password è obbligatoria' });
     }
 
     try {
@@ -77,18 +87,18 @@ exports.login = async (req, res) => {
         }
 
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: 'Utente non trovato' });
         }
 
         // Compare passwords
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ error: 'Invalid credentials' });
+            return res.status(400).json({ error: 'Credenziali invalide' });
         }
 
         // Make sure JWT_SECRET is available
         if (!process.env.JWT_SECRET) {
-            return res.status(500).json({ error: 'Server error: JWT secret is missing' });
+            return res.status(500).json({ error: 'Errore del server (JWT mancante)' });
         }
 
         // Create a JWT token
@@ -100,12 +110,12 @@ exports.login = async (req, res) => {
 
         // Send back the token in the response
         res.status(200).json({
-            message: 'Login successful',
+            message: 'Login eseguito',
             token
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: 'Errore del server' });
     }
 };
 
@@ -114,12 +124,12 @@ exports.data = async (req, res) => {
     try {
         const userId = req.user?._id;
         if (!userId) {
-            return res.status(401).json({ error: 'User authentication required' });
+            return res.status(401).json({ error: 'Autenticazione utente richiesta' });
         }
 
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: 'User non trovato' });
         }
 
         res.status(200).json({
@@ -133,7 +143,7 @@ exports.data = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: 'Errore del server' });
     }
 };
 
@@ -145,16 +155,16 @@ exports.updatePassword = async (req, res) => {
 
         // Validate password
         if (!password) {
-            return res.status(400).json({ error: 'Password is required' });
+            return res.status(400).json({ error: 'Password obbligatoria' });
         }
 
         if (!/\d/.test(password)) {
-            return res.status(400).json({ error: "Password must contain at least one number (0-9)" });
+            return res.status(400).json({ error: "Password deve contenere almeno un numero (0-9)" });
         }
 
         // Check if password contains at least one special character from the allowed set
         if (!/[.@_\-!#$%&]/.test(password)) {
-            return res.status(400).json({ error: "Password must contain at least one special character (@ . - _ ! # $ % &)" });
+            return res.status(400).json({ error: "Password deve contenere almeno un carattere speciale (@ . - _ ! # $ % &)" });
         }
 
         // Hash the new password
@@ -164,7 +174,7 @@ exports.updatePassword = async (req, res) => {
         // Find the user and update the password
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: 'User non trovato' });
         }
 
         // Update the password
@@ -173,12 +183,12 @@ exports.updatePassword = async (req, res) => {
 
         // Respond with a success message
         res.json({
-            message: 'Password updated successfully',
+            message: 'Password aggiornata correttamente',
         });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error updating the password. Please try again.' });
+        res.status(500).json({ error: 'Errore nell aggiornamento della password' });
     }
 };
 
@@ -288,3 +298,82 @@ exports.adminRegisterKey = async (req, res) => {
         res.status(500).json({ error: 'Admin registration not successful, try again' });
     }
 };
+
+exports.recoverPassword = async (req, res) => {
+        const { email } = req.body;
+    
+        try {
+            const user = await User.findOne({ email });
+            if (!user) {
+                return res.status(400).json({ error: "Email non trovata" });
+            }
+    
+            // Generate reset token (valid for 1 hour)
+            const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    
+            // Create reset link
+            const resetLink = `http://localhost:4000/resetPassword.html?token=${resetToken}`;
+    
+            // Email content
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: user.email,
+                subject: 'Reset Password',
+                text: `Clicca sul link per reimpostare la password: ${resetLink}`,
+                html: `<p>Clicca sul link per reimpostare la tua password: <a href="${resetLink}">${resetLink}</a></p>`
+            };
+    
+            // Send email
+            await transporter.sendMail(mailOptions);
+    
+            res.json({ message: "Email inviata! Controlla la tua casella di posta." });
+        } catch (error) {
+            console.error("Errore nel recupero password:", error);
+            res.status(500).json({ error: "Errore interno del server" });
+        }
+    };
+
+
+    exports.resetPassword = async (req, res) => {
+        try {
+            const { token, newPassword } = req.body;
+            console.log(newPassword);
+    
+            // Validate password
+            if (!newPassword) {
+                return res.status(400).json({ error: 'Password obbligatoria' });
+            }
+    
+            if (!/\d/.test(newPassword)) {
+                return res.status(400).json({ error: "Password deve contenere almeno un numero (0-9)" });
+            }
+    
+            if (!/[.@_\-!#$%&]/.test(newPassword)) {
+                return res.status(400).json({ error: "Password deve contenere almeno un carattere speciale (@ . - _ ! # $ % &)" });
+            }
+    
+            // Verify token and get user
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const user = await User.findById(decoded.id);
+    
+            if (!user) {
+                return res.status(400).json({ error: "Utente non trovato" });
+            }
+            console.log(user);
+    
+            // Hash the new password
+            const saltRounds = 10; // Same security setting as updatePassword
+            const hashedPassword = bcrypt.hashSync(newPassword, saltRounds);
+    
+            // Update user password
+            user.password = hashedPassword;
+            await user.save();
+    
+            // Success response
+            res.json({ message: "Password aggiornata con successo!" });
+    
+        } catch (error) {
+            console.error("Errore nel reset della password:", error);
+            res.status(400).json({ error: "Token non valido o scaduto" });
+        }
+    };

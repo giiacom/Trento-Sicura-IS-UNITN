@@ -6,6 +6,7 @@
     <title>Pagina con Pulsanti e Lista Segnalazioni</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="./output.css" rel="stylesheet">
 </head>
 <body class="flex h-screen bg-white font-sans">
 
@@ -117,7 +118,7 @@
     
                         // Add click event to open marker popup when the list item is clicked
                         li.addEventListener('click', () => {
-                            map.setView([lat, lng], 15); // Center the map on the marker
+                            map.setView([lat, lng], 14); // Center the map on the marker
                             marker.openPopup(); // Open the marker popup
                         });
                     }

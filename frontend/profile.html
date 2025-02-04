@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profilo Utente</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="./output.css" rel="stylesheet">
 </head>
 <body class="bg-sky-400 p-10 flex h-screen justify-center items-center">
 
@@ -160,7 +161,6 @@
                         return;
                     }
 
-                    alert('Segnalazione eliminata con successo');
                     fetchReports(); // Refresh the list
                 } catch (error) {
                     console.error('Errore durante l\'eliminazione:', error);
@@ -171,7 +171,6 @@
             // Logout function
             function logout() {
                 localStorage.removeItem('jwt_token'); // Remove token
-                alert('Logout effettuato.');
                 window.location.href = 'login.html';
             }
 
