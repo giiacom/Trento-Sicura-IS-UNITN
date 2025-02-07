@@ -56,8 +56,13 @@
             }
 
             try {
+
+                const apiUrl = window.location.hostname === 'trento-sicura-is-unitn.onrender.com'
+                ? 'https://trento-sicura-is-unitn.onrender.com/api/password'  // Production API URL
+                : 'http://localhost:4000/api/password';  // Local API URL
+            
                 // Step 1: Update password on the backend
-                const response = await fetch('http://localhost:4000/api/password', {
+                const response = await fetch(apiUrl, {
                     method: 'POST',  // Make sure this matches your backend route (PUT or POST)
                     headers: {
                         'Content-Type': 'application/json',
