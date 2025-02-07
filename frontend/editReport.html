@@ -55,6 +55,18 @@
     </div>
 
     <script>
+         function openLocationPage() {
+            // Save title and description to localStorage before navigating to location selection page
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+
+            localStorage.setItem('savedTitle', title);
+            localStorage.setItem('savedDescription', description);
+
+            window.location.href = 'select-location.html';
+        }
+
+        
         document.addEventListener('DOMContentLoaded', async () => {
             const urlParams = new URLSearchParams(window.location.search);
             const reportId = urlParams.get('id');  // Get the report ID from the URL
