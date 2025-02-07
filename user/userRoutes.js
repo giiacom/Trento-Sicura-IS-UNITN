@@ -10,6 +10,7 @@ router.post('/register', userController.register);
 router.get('/data', authenticate, userController.data);
 router.post('/password', authenticate, userController.updatePassword);
 router.post('/recoverPassword', userController.recoverPassword);
+router.post('/recoverPasswordF', userController.recoverPasswordF);
 router.post('/resetPassword', userController.resetPassword);
 
 

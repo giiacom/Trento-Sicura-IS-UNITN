@@ -319,7 +319,43 @@ exports.recoverPassword = async (req, res) => {
     
             // Generate reset token (valid for 1 hour)
             const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
+            const frontendUrl = 'https://trento-sicura-is-unitn.onrender.com';
+            const resetLink = `${frontendUrl}/resetPassword.html?token=${resetToken}`;
+
+                
+            // Email content
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: user.email,
+                subject: 'Reset Password',
+                text: `Clicca sul link per reimpostare la password: ${resetLink}`,
+                html: `<p>Clicca sul link per reimpostare la tua password: <a href="${resetLink}">${resetLink}</a></p>`
+            };
+    
+            // Send email
+            await transporter.sendMail(mailOptions);
+    
+            res.json({ message: "Email inviata! Controlla la tua casella di posta." });
+        } catch (error) {
+            console.error("Errore nel recupero password:", error);
+            res.status(500).json({ error: "Errore interno del server" });
+        }
+    };
+
+
+
+    exports.recoverPasswordF = async (req, res) => {
+        const { email } = req.body;
+    
+        try {
+            const user = await User.findOne({ email });
+            if (!user) {
+                return res.status(400).json({ error: "Email non trovata" });
+            }
+    
+            // Generate reset token (valid for 1 hour)
+            const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+            const frontendUrl = 'http://localhost:4000';
             const resetLink = `${frontendUrl}/resetPassword.html?token=${resetToken}`;
 
                 
