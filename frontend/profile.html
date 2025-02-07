@@ -95,9 +95,13 @@
             fetchUserProfile();
 
             // Function to fetch user reports
+            const apiUrl1 = window.location.hostname === 'trento-sicura-is-unitn.onrender.com'
+                ? 'https://trento-sicura-is-unitn.onrender.com/api/get'  // Production API URL
+                : 'http://localhost:4000/api/get';  // Local API URL
+            
             async function fetchReports() {
                 try {
-                    const response = await fetch(apiUrl, {
+                    const response = await fetch(apiUrl1, {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${token}`
@@ -105,6 +109,9 @@
                     });
 
                     const data = await response.json();
+                    console.log("API Response:", data);
+
+                    
                     const reportList = document.getElementById('segnalazioni-list');
                     reportList.innerHTML = ''; // Clear previous content
 
