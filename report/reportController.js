@@ -171,7 +171,7 @@ exports.editReport = async (req, res) => {
 
         if (title) report.title = title;
         if (description) report.description = description;
-        if(location) report.location= JSON.parse(location);
+        if (location) report.location= JSON.parse(location);
 
         // Check if location exists and is a string before parsing
         /*if (location && typeof location === 'string' && location.trim()) {
