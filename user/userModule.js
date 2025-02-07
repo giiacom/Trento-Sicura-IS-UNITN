@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin'], default: 'user' 
     },
     posizione: { 
-        // user / admin    per il momento non lo usiamo e poi per passare da user ad admin basta cambiare il ruolo
+        // user / admin   
         type: Boolean,
         required: false, 
         default: false

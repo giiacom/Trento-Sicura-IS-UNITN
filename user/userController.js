@@ -182,6 +182,9 @@ exports.updatePassword = async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User non trovato' });
         }
+        if(hashedPassword === user.password){
+            return res.status(400).json({ error: 'La nuova password non può essere uguale a quella vecchia' });
+        }
 
         // Update the password
         user.password = hashedPassword;
