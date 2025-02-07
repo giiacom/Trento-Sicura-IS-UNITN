@@ -61,21 +61,28 @@
 
             const user = { username, email, password };
 
-            fetch('http://localhost:4000/api/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(user)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                    return;
-                }
-                window.location.href = 'login.html';
-            });
+            const apiUrl = process.env.NODE_ENV === 'production'
+    ? 'https://trento-sicura-is-unitn.onrender.com/api/register'
+    : 'http://localhost:4000/api/register';
+
+fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(user)
+})
+.then(response => response.json())
+.then(data => {
+    if (data.error) {
+        alert(data.error);
+        return;
+    }
+    window.location.href = 'login.html';
+})
+.catch(error => {
+    console.error('Error:', error);
+});
         });
 
         // Toggle password visibility
