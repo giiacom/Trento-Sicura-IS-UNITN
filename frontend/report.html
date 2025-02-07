@@ -55,44 +55,51 @@
     </div>
 
     <script>
+        // Function to handle different environments (development or production)
+        function getApiUrl() {
+            // Use your actual production URL for deployment
+            const isProduction = window.location.hostname !== 'localhost';
+            return isProduction ? 'https://your-production-api-url.com/api' : 'http://localhost:4000/api';
+        }
+
         function openLocationPage() {
-        // Save title and description to localStorage
-        const title = document.getElementById('title').value;
-        const description = document.getElementById('description').value;
+            // Save title and description to localStorage before navigating to location selection page
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
 
-        localStorage.setItem('savedTitle', title);
-        localStorage.setItem('savedDescription', description);
+            localStorage.setItem('savedTitle', title);
+            localStorage.setItem('savedDescription', description);
 
-        window.location.href = 'select-location.html';
-    }
-
+            window.location.href = 'select-location.html';
+        }
 
         // Get the selected location from localStorage when returning from map page
         window.onload = function () {
-        const storedLocation = localStorage.getItem('selectedLocation');
-        if (storedLocation) {
-            document.getElementById('location').value = storedLocation;
-            localStorage.removeItem('selectedLocation'); // Clear after use
-        }
+            const storedLocation = localStorage.getItem('selectedLocation');
+            if (storedLocation) {
+                document.getElementById('location').value = storedLocation;
+                localStorage.removeItem('selectedLocation'); // Clear after use
+            }
 
-        // Restore saved title and description
-        const savedTitle = localStorage.getItem('savedTitle');
-        const savedDescription = localStorage.getItem('savedDescription');
-        if (savedTitle) {
-            document.getElementById('title').value = savedTitle;
-        }
-        if (savedDescription) {
-            document.getElementById('description').value = savedDescription;
-        }
+            // Restore saved title and description
+            const savedTitle = localStorage.getItem('savedTitle');
+            const savedDescription = localStorage.getItem('savedDescription');
+            if (savedTitle) {
+                document.getElementById('title').value = savedTitle;
+            }
+            if (savedDescription) {
+                document.getElementById('description').value = savedDescription;
+            }
 
-        // Clear saved data from localStorage after loading
-        localStorage.removeItem('savedTitle');
-        localStorage.removeItem('savedDescription');
-    };
+            // Clear saved data from localStorage after loading
+            localStorage.removeItem('savedTitle');
+            localStorage.removeItem('savedDescription');
+        };
 
+        // Handle form submission
         document.querySelector('form').addEventListener('submit', function(event) {
-            event.preventDefault();
-    
+            event.preventDefault();  // Prevent the default form submission
+
             const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
             const photo = document.getElementById('photo').files[0];
@@ -109,7 +116,7 @@
             } else {
                 location = {};  // Set to an empty object if no location is provided
             }
-    
+
             const token = localStorage.getItem('jwt_token'); // Assuming the token is saved as 'jwt_token'
     
             if (!token) {
@@ -117,7 +124,7 @@
                 window.location.href = 'login.html'; // Redirect to login if no token
                 return;
             }
-    
+
             // Validate title and description
             if (!title || !description) {
                 alert("Title and description are required.");
@@ -131,12 +138,10 @@
             if (photo) {
                 formData.append('photo', photo); // Optional photo
             }
-    
-            for (let [key, value] of formData.entries()) {
-                console.log(key, value);
-            }
-    
-            fetch('http://localhost:4000/api/create', {
+
+            const apiUrl = getApiUrl(); // Get the appropriate API URL based on the environment
+
+            fetch(`${apiUrl}/create`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`, // Send the token here
@@ -156,8 +161,8 @@
                     alert(data.error);  // Show the error from the server
                     return;
                 }
-    
-                window.location.href = 'main.html'; // Redirect to main page
+
+                window.location.href = 'main.html'; // Redirect to main page on success
             })
             .catch(error => {
                 console.error('Error:', error);
