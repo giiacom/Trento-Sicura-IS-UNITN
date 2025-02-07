@@ -11,7 +11,7 @@
 <body class="flex h-screen bg-white font-sans">
 
     <!-- Metà sinistra con la mappa -->
-    <div class="ml-10 mb-10 mt-10 mr-10  w-1/2 h-9/10">
+    <div class="ml-10 mb-10 mt-10 mr-10 w-1/2 h-9/10">
         <div id="map" class="h-full"></div>
     </div>
 
@@ -46,6 +46,11 @@
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
+        // Dynamic API URL (same as login page)
+        const apiUrl = window.location.hostname === 'trento-sicura-is-unitn.onrender.com'
+            ? 'https://trento-sicura-is-unitn.onrender.com/api/all'  // Production API URL
+            : 'http://localhost:4000/api/all';  // Local API URL
+
         // Initialize the map
         var map = L.map('map');
     
@@ -84,7 +89,7 @@
         // Fetch and display reports
         async function caricaSegnalazioni() {
             try {
-                const response = await fetch('http://localhost:4000/api/all');
+                const response = await fetch(apiUrl);
                 const data = await response.json();  // Parse JSON response
     
                 // Check if "reports" is an array
@@ -97,6 +102,11 @@
                 lista.innerHTML = ''; // Clear existing list before adding new ones
                 markers = {}; // Reset markers dictionary
     
+                if (data.reports.length === 0) {
+                    lista.innerHTML = '<li class="text-gray-500">Nessuna segnalazione disponibile.</li>';
+                    return;
+                }
+
                 data.reports.forEach(seg => {
                     // Create the list item for the report
                     const li = document.createElement('li');
@@ -114,7 +124,7 @@
                         const marker = L.marker([lat, lng]).addTo(map)
                             .bindPopup(`<b>${seg.title}</b><br>${seg.description}`);
                         
-                        markers[seg.title] = marker; // Use title as a key
+                        markers[seg._id] = marker; // Use unique _id as a key
     
                         // Add click event to open marker popup when the list item is clicked
                         li.addEventListener('click', () => {

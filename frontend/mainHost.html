@@ -11,7 +11,7 @@
 <body class="flex h-screen bg-white font-sans">
 
     <!-- Metà sinistra con la mappa -->
-    <div class="ml-10 mb-10 mt-10 mr-10  w-1/2 h-9/10">
+    <div class="ml-10 mb-10 mt-10 mr-10 w-1/2 h-9/10">
         <div id="map" class="h-full"></div>
     </div>
 
@@ -21,7 +21,7 @@
         <!-- Sezione Bottoni -->
         <div class="flex space-x-4 mb-6 justify-center">
             <button class="px-6 py-3 text-lg text-white bg-red-500 rounded-lg hover:opacity-80"
-                onclick="window.location.href='registra.html'">
+                onclick="registrati()">
                 Registrati
             </button>
         </div>
@@ -38,6 +38,11 @@
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
+        // Dynamic API URL (same as previous pages)
+        const apiUrl = window.location.hostname === 'trento-sicura-is-unitn.onrender.com'
+            ? 'https://trento-sicura-is-unitn.onrender.com/api/all'  // Production API URL
+            : 'http://localhost:4000/api/all';  // Local API URL
+
         // Inizializza la mappa
         var map = L.map('map');
 
@@ -47,7 +52,6 @@
         }).addTo(map);
 
         let markers = {};
-
 
         // Geolocalizzazione dell'utente
         if (navigator.geolocation) {
@@ -67,47 +71,53 @@
             map.setView([46.066666, 11.116667], 13);
         }
 
-        // Funzione di Logout
+        // Funzione di Registrazione
         function registrati() {
-            window.location.href = 'registra.html'; // Reindirizza alla pagina di login
+            window.location.href = 'registra.html'; // Reindirizza alla pagina di registrazione
         }
 
-
+        // Funzione per caricare le segnalazioni
         async function caricaSegnalazioni() {
-    try {
-        const response = await fetch('http://localhost:4000/api/all');
-        const data = await response.json();  // Parse JSON response
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();  // Parse JSON response
 
-        // Check if "reports" is actually an array
-        if (!Array.isArray(data.reports)) {
-            console.error("API response is not an array:", data);
-            return;
-        }
+                // Check if "reports" is actually an array
+                if (!Array.isArray(data.reports)) {
+                    console.error("API response is not an array:", data);
+                    return;
+                }
 
-        const lista = document.getElementById('segnalazioni-list');
-        lista.innerHTML = ''; // Clear existing list before adding new ones
-        markers = {}; // Reset markers dictionary
+                const lista = document.getElementById('segnalazioni-list');
+                lista.innerHTML = ''; // Clear existing list before adding new ones
+                markers = {}; // Reset markers dictionary
 
+                // Handle case when no reports are available
+                if (data.reports.length === 0) {
+                    lista.innerHTML = '<li class="text-gray-500">Nessuna segnalazione disponibile.</li>';
+                    return;
+                }
 
-        data.reports.forEach(seg => {
+                // Loop through the reports and add them to the list and map
+                data.reports.forEach(seg => {
                     // Create the list item for the report
                     const li = document.createElement('li');
                     li.classList.add('p-2', 'border-b', 'border-gray-300', 'cursor-pointer', 'hover:bg-gray-200');
                     li.innerHTML = `<strong>${seg.title}</strong><br><span class="text-gray-600">${seg.description}</span>`;
                     
                     lista.appendChild(li);
-    
+
                     // If the report has a location, add a marker to the map
                     if (seg.location && seg.location.lat && seg.location.lng) {
                         const lat = seg.location.lat;
                         const lng = seg.location.lng;
-    
+
                         // Create a marker and store it in the markers dictionary
                         const marker = L.marker([lat, lng]).addTo(map)
                             .bindPopup(`<b>${seg.title}</b><br>${seg.description}`);
                         
-                        markers[seg.title] = marker; // Use title as a key
-    
+                        markers[seg._id] = marker; // Use unique _id as a key
+
                         // Add click event to open marker popup when the list item is clicked
                         li.addEventListener('click', () => {
                             map.setView([lat, lng], 15); // Center the map on the marker
@@ -116,11 +126,12 @@
                     }
                 });
 
-    } catch (error) {
-        console.error("Error fetching reports:", error);
-    }
+            } catch (error) {
+                console.error("Error fetching reports:", error);
+            }
         }
 
+        // Call the function to load the reports when the page loads
         caricaSegnalazioni();
     </script>
 
