@@ -15,8 +15,18 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 4000;
 
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production'
+    ? 'https://trento-sicura-is-unitn.onrender.com' // Allow only the deployed frontend in production
+    : 'http://localhost:4000', // Allow localhost for local development
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(cors(corsOptions));  // Apply the CORS configuration
+
 app.use(express.json());
-app.use(cors());
+//app.use(cors());
 app.use(express.urlencoded({ extended: true })); 
 
 
