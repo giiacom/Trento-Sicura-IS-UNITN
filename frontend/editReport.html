@@ -70,10 +70,14 @@
                 window.location.href = 'login.html';
                 return;
             }
-    
+            
+            const apiUrl = window.location.hostname === 'trento-sicura-is-unitn.onrender.com'
+                ? 'https://trento-sicura-is-unitn.onrender.com/api/getReport'  // Production API URL
+                : 'http://localhost:4000/api/getReport';  // Local API URL
+            
             // Fetch the report details to pre-fill the form
             try {
-                const response = await fetch(`http://localhost:4000/api/getReport?id=${reportId}`, {
+                const response = await fetch(`${apiUrl}?id=${reportId}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -126,9 +130,12 @@
                         formData.append('photo', photo);
                     }
 
-    
+                    const apiUrl2 = window.location.hostname === 'trento-sicura-is-unitn.onrender.com'
+                ? 'https://trento-sicura-is-unitn.onrender.com/api/editReport'  // Production API URL
+                : 'http://localhost:4000/api/editReport';  // Local API URL
+            
                     try {
-                        const updateResponse = await fetch(`http://localhost:4000/api/editReport?id=${reportId}`, {
+                        const updateResponse = await fetch(`${apiUrl2}?id=${reportId}`, {
                             method: 'PUT',
                             headers: {
                                 'Authorization': `Bearer ${token}`
