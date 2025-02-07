@@ -50,22 +50,27 @@
             const usernameOrEmail = document.getElementById("usernameOrEmail").value;
             const password = document.getElementById("password").value;
             const loginData = usernameOrEmail.includes("@") ? { email: usernameOrEmail } : { username: usernameOrEmail };
-            
+
+            // Set the API URL dynamically based on the environment
+            const apiUrl = window.location.hostname === 'trento-sicura-is-unitn.onrender.com'
+                ? 'https://trento-sicura-is-unitn.onrender.com/api/login'  // Production API URL
+                : 'http://localhost:4000/api/login';  // Local API URL
+
             try {
-                const response = await fetch('http://localhost:4000/api/login', {
+                const response = await fetch(apiUrl, {  // Use dynamic apiUrl here
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ ...loginData, password })
                 });
-                
+
                 const result = await response.json();
                 if (result.error) {
                     alert(result.error);
                     return;
                 }
                 
-                localStorage.setItem('jwt_token', result.token);
-                window.location.href = 'main.html';
+                localStorage.setItem('jwt_token', result.token);  // Save JWT token to localStorage
+                window.location.href = 'main.html';  // Redirect to main page after successful login
             } catch (error) {
                 console.error('Errore durante il login:', error);
                 alert('Errore durante il login.');
