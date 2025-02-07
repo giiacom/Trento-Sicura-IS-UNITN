@@ -125,7 +125,7 @@
                     // Get location value and handle optional field
                     let location = document.getElementById('location').value;
     
-                    if (location.trim()) {
+                    /*if (location.trim()) {
                         try {
                             // Only parse the location if it's not empty
                             const parsedLocation = JSON.parse(location);
@@ -136,7 +136,10 @@
                         }
                     } else {
                         formData.append('location', '');  // If location is empty, append an empty value
-                    }
+                    }*/
+                   if (location){
+                    formData.append('location', location);
+                   }
     
                     const photo = document.getElementById('photo').files[0];
                     if (photo) {
