@@ -171,15 +171,16 @@ exports.editReport = async (req, res) => {
 
         if (title) report.title = title;
         if (description) report.description = description;
+        if(location) report.location= JSON.parse(location);
 
         // Check if location exists and is a string before parsing
-        if (location && typeof location === 'string' && location.trim()) {
+        /*if (location && typeof location === 'string' && location.trim()) {
             try {
                 report.location = JSON.parse(location);
             } catch {
                 return res.status(400).json({ error: 'Invalid location format' });
             }
-        }
+        }*/
 
         if (req.file) {
             report.photo = req.file.path;
