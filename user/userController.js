@@ -319,10 +319,10 @@ exports.recoverPassword = async (req, res) => {
     
             // Generate reset token (valid for 1 hour)
             const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    
-            // Create reset link
-            const resetLink = `http://localhost:4000/resetPassword.html?token=${resetToken}`;
-    
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
+            const resetLink = `${frontendUrl}/resetPassword.html?token=${resetToken}`;
+
+                
             // Email content
             const mailOptions = {
                 from: process.env.EMAIL_USER,
